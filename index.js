@@ -7,6 +7,7 @@ const cors = require("cors");
 const { saveUserInDatabase } = require("./controllers/AuthController");
 const { AuthRoute } = require("./routes/AuthRoutes");
 const cookieParser = require("cookie-parser");
+const { MessageRoute } = require("./routes/MessageRoutes");
 
 // -----====== cors options ====----- /
 const corsOptions = {
@@ -41,6 +42,7 @@ app.use(cookieParser());
 
 // -------- Routing ----------- //
 app.use("/api/v1", AuthRoute);
+app.use("/api/v1", MessageRoute);
 
 app.use("/cookie", (req, res) => {
   res.cookie("user", "noyonislam");
@@ -54,3 +56,6 @@ app.listen(process.env.SERVER_PORT, () =>
 
 // ------====== Error Handle -----======
 app.use(ErrorHandler);
+
+// ------ for get online & offline users ------
+global.onlineUsers = new Map();
