@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const MessageSchema = mongoose.Schema(
   {
     message: { type: String },
-    from: { type: mongoose.Schema.ObjectId, ref: "User" },
-    to: { type: mongoose.Schema.ObjectId, ref: "User" },
+    sender: { type: mongoose.Schema.ObjectId, ref: "User" },
+    receiver: { type: mongoose.Schema.ObjectId, ref: "User" },
     status: { type: String },
   },
   {
