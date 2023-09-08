@@ -8,6 +8,6 @@ const MessageRoute = express.Router();
 
 // ----- routes -------
 MessageRoute.post("/message", messageSaveInDataBase);
-MessageRoute.get("/getMessages/:email/:from/:to", getMessages);
+MessageRoute.get("/getMessages/:email/:sender/:receiver", getMessages);
 
 module.exports = { MessageRoute };

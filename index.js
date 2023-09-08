@@ -8,6 +8,7 @@ const { saveUserInDatabase } = require("./controllers/AuthController");
 const { AuthRoute } = require("./routes/AuthRoutes");
 const cookieParser = require("cookie-parser");
 const { MessageRoute } = require("./routes/MessageRoutes");
+const { Server } = require("socket.io");
 
 // -----====== cors options ====----- /
 const corsOptions = {
@@ -50,12 +51,31 @@ app.use("/cookie", (req, res) => {
 });
 
 // -------- create a server -------- //
-app.listen(process.env.SERVER_PORT, () =>
+const server = app.listen(process.env.SERVER_PORT, () =>
   console.log(`App listing to port ${process.env.SERVER_PORT}`)
 );
 
 // ------====== Error Handle -----======
 app.use(ErrorHandler);
 
+// connect with socket.io
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
+
 // ------ for get online & offline users ------
 global.onlineUsers = new Map();
+io.on("connection", (socket) => {
+  global.chatSocket = socket;
+  socket.on("add_user", (userId) => {
+    onlineUsers.set(userId, socket.id);
+  });
+  socket.on("send_message", (data) => {
+    const sendUserSocket = onlineUsers.get(data?.receiver);
+    if (sendUserSocket) {
+      socket.to(sendUserSocket).emit("message_receive", { ...data });
+    }
+  });
+});

@@ -42,7 +42,6 @@ const messageSaveInDataBase = async (req, res, next) => {
 // ----------- get messages ---------------
 const getMessages = async (req, res, next) => {
   const { email, sender, receiver } = req.params;
-
   try {
     // ------- found user -------
     const user = await User.findOne({ email });
@@ -50,10 +49,11 @@ const getMessages = async (req, res, next) => {
       return next(new ErrorHandler("User dose't exist"));
     }
     // ------ find messages from database ----------
+
     const allMessages = await Messages.find({
       $or: [
-        { "sender.id": sender, "receiver.id": receiver },
-        { "sender.id": receiver, "receiver.id": sender },
+        { sender: sender, receiver: receiver },
+        { sender: receiver, receiver: sender },
       ],
     }).sort("created_at");
 
@@ -62,14 +62,16 @@ const getMessages = async (req, res, next) => {
 
     // -------- get index all user for filtering unread message
     allMessages.forEach((message, index) => {
-      if (message.sender && message.sender !== "read") {
+      if (
+        message.status !== "read" &&
+        JSON.stringify(message.sender._id) === `"${receiver}"`
+      ) {
         allMessages[index].status = "read";
         unReadMessages.push(message._id);
       }
     });
-
     // -------- when user come online update all message read --------
-    const updatedMessages = await Messages.updateMany(
+    await Messages.updateMany(
       { _id: unReadMessages },
       {
         $set: {
