@@ -14,8 +14,8 @@ const { Server } = require("socket.io");
 const corsOptions = {
   origin: "*",
   credentials: true,
-  // access-control-allow-credentials:true,
   optionSuccessStatus: 200,
+  // access-control-allow-credentials:true,
 };
 
 // -------- app create for use application -------- //
@@ -40,6 +40,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.use(cookieParser());
+app.use("/Uploads/recording", express.static("Uploads/recording"));
 
 // -------- Routing ----------- //
 app.use("/api/v1", AuthRoute);
@@ -56,7 +57,7 @@ const server = app.listen(process.env.SERVER_PORT, () =>
 );
 
 // ------====== Error Handle -----======
-app.use(ErrorHandler);
+// app.use(ErrorHandler);
 
 // connect with socket.io
 const io = new Server(server, {

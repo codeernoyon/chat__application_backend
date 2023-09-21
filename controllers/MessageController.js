@@ -1,18 +1,19 @@
 const Messages = require("../models/MessageSchema");
 const User = require("../models/userSchema");
 const ErrorHandler = require("../utils/erroeHandler");
+const fs = require("fs");
 
 // ---------- message save on database ------------
 const messageSaveInDataBase = async (req, res, next) => {
-  const { email, sender, receiver, message } = req.body;
+  const { sender, receiver, message, fileType } = req.body;
   try {
     // ------- found user -------
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ _id: sender });
     if (!user) {
       return next(new ErrorHandler("User dose't exist"));
     }
     // ----- check valid message ------
-    if (!user && !sender && !receiver && !message) {
+    if (!user && !sender && !receiver && !message && !fileType) {
       return next(new ErrorHandler("Can't send the message"));
     }
 
@@ -25,6 +26,7 @@ const messageSaveInDataBase = async (req, res, next) => {
       sender,
       receiver,
       status: userOnline ? "deliver" : "send",
+      fileType,
     });
 
     // ---- message save --------
@@ -35,19 +37,22 @@ const messageSaveInDataBase = async (req, res, next) => {
       data: newMessage._doc,
     });
   } catch (error) {
-    next(new ErrorHandler(error.messages));
+    next(new ErrorHandler(error));
   }
 };
 
 // ----------- get messages ---------------
 const getMessages = async (req, res, next) => {
-  const { email, sender, receiver } = req.params;
+  const { sender, receiver } = req.params;
   try {
     // ------- found user -------
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ _id: sender });
     if (!user) {
       return next(new ErrorHandler("User dose't exist"));
     }
+    if (receiver === undefined || receiver === null)
+      return next(new ErrorHandler("receiver disvalue"));
+
     // ------ find messages from database ----------
 
     const allMessages = await Messages.find({
@@ -87,4 +92,49 @@ const getMessages = async (req, res, next) => {
     next(new ErrorHandler(error.message));
   }
 };
-module.exports = { messageSaveInDataBase, getMessages };
+// ---------- audio message save on local folder ------------
+const audioMessage = async (req, res, next) => {
+  const { sender, receiver } = req.query;
+  try {
+    // ------- found user -------
+    const user = await User.findOne({ _id: sender });
+    if (!user) {
+      return next(new ErrorHandler("User dose't exist"));
+    }
+    // ----- check valid message ------
+    if (!user && !sender && !receiver) {
+      return next(new ErrorHandler("Can't send the message"));
+    }
+    // ----- check valid file message ------
+    if (!req.file) return next(new ErrorHandler("file dose't found"));
+
+    // file ready for save to folder
+    const date = Date.now();
+    let fileName = "Uploads/recording/" + date + req.file.originalname;
+
+    fs.renameSync(req.file.path, fileName);
+
+    // check user online & offline
+    const userOnline = onlineUsers.get(receiver);
+
+    // --- create instance ----
+    const newMessage = new Messages({
+      message: fileName,
+      sender,
+      receiver,
+      status: userOnline ? "deliver" : "send",
+      fileType: "audio",
+    });
+
+    // ---- message save --------
+    await newMessage.save();
+
+    // ------ send response -----
+    res.status(200).json({
+      data: newMessage._doc,
+    });
+  } catch (error) {
+    next(new ErrorHandler(error));
+  }
+};
+module.exports = { messageSaveInDataBase, getMessages, audioMessage };
