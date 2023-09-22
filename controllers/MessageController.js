@@ -1,3 +1,4 @@
+const { response } = require("express");
 const Messages = require("../models/MessageSchema");
 const User = require("../models/userSchema");
 const ErrorHandler = require("../utils/erroeHandler");
@@ -137,4 +138,53 @@ const audioMessage = async (req, res, next) => {
     next(new ErrorHandler(error));
   }
 };
-module.exports = { messageSaveInDataBase, getMessages, audioMessage };
+
+// ----------- all messages user controller ---------------
+const allMessagesUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    //  get all messages from data base using user id
+    const allMessages = await Messages.find({
+      $or: [{ sender: id }, { receiver: id }],
+    }).sort("created_at");
+
+    // store filter user id
+    let messageReceiver = [];
+    let messageSenders = [];
+    allMessages.forEach(async (message) => {
+      // user to all receiver message user
+      if (message.sender.toString() === id) {
+        messageReceiver.push(message.receiver.toString());
+      }
+
+      // all sender message user to user
+      if (message.receiver.toString() === id) {
+        messageSenders.push(message.sender);
+      }
+    });
+
+    // find all user sender && receiver from data base
+    const receiverUsers = await User.find({
+      _id: { $in: [...new Set(messageReceiver)] },
+    });
+    const senderUsers = await User.find({
+      _id: { $in: [...new Set(messageSenders)] },
+    });
+
+    // all user send for response
+    const allMessagesUsers = [...new Set(receiverUsers, senderUsers)];
+
+    // ----------- response ----------- //
+    res.status(200).json({
+      allMessagesUsers,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+module.exports = {
+  messageSaveInDataBase,
+  getMessages,
+  audioMessage,
+  allMessagesUser,
+};
