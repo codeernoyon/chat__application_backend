@@ -61,7 +61,7 @@ const getMessages = async (req, res, next) => {
         { sender: sender, receiver: receiver },
         { sender: receiver, receiver: sender },
       ],
-    }).sort("created_at");
+    }).sort({ createdAt: "asc" });
 
     // all unread message for when user come online
     let unReadMessages = [];
@@ -141,16 +141,22 @@ const audioMessage = async (req, res, next) => {
 
 // ----------- all messages user controller ---------------
 const allMessagesUser = async (req, res, next) => {
+  const { id } = req.params;
+  // ------- found user -------
+  const user = await User.findOne({ _id: id });
+  if (!user) {
+    return next(new ErrorHandler("User dose't exist"));
+  }
   try {
-    const { id } = req.params;
     //  get all messages from data base using user id
     const allMessages = await Messages.find({
       $or: [{ sender: id }, { receiver: id }],
-    }).sort("created_at");
+    }).sort({ createdAt: -1 });
 
     // store filter user id
     let messageReceiver = [];
     let messageSenders = [];
+
     allMessages.forEach(async (message) => {
       // user to all receiver message user
       if (message.sender.toString() === id) {
@@ -163,23 +169,97 @@ const allMessagesUser = async (req, res, next) => {
       }
     });
 
-    // find all user sender && receiver from data base
-    const receiverUsers = await User.find({
-      _id: { $in: [...new Set(messageReceiver)] },
-    });
-    const senderUsers = await User.find({
-      _id: { $in: [...new Set(messageSenders)] },
+    // find all user sender && receiver from data base send response
+    const allMessagesUsers = await User.find({
+      $or: [
+        { _id: [...new Set(messageSenders)] },
+        { _id: [...new Set(messageReceiver)] },
+      ],
     });
 
-    // all user send for response
-    const allMessagesUsers = [...new Set(receiverUsers, senderUsers)];
+    allMessages.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    const users = new Map();
+    const messagesStateChange = [];
 
+    const filterUser = (receiverId) => {
+      let item = allMessagesUsers.filter((user) => {
+        return user._id.toString() === receiverId.toString();
+      });
+      return item;
+    };
+
+    allMessages.forEach((mes) => {
+      const isSender = mes.sender.toString() === id;
+      const clcId = isSender ? mes.receiver.toString() : mes.sender.toString();
+      if (mes.status === "sent") {
+        messagesStateChange.push(mes.id);
+      }
+      if (!users.get(clcId)) {
+        const {
+          _id,
+          message,
+          sender,
+          receiver,
+          status,
+          fileType,
+          createdAt,
+          updatedAt,
+        } = mes;
+        let user = {
+          messageId: _id,
+          message,
+          sender,
+          receiver,
+          status,
+          fileType,
+          createdAt,
+          updatedAt,
+        };
+        if (isSender) {
+          user = {
+            ...user,
+            stat: "true",
+            user: { ...filterUser(mes.receiver) },
+            totalUnreadMessages: 0,
+          };
+        } else {
+          user = {
+            ...user,
+            stat: "else",
+            user: { ...filterUser(mes.sender) },
+            totalUnreadMessages: mes.status !== "read" ? 1 : 0,
+          };
+        }
+        users.set(clcId, { ...user });
+      } else if (mes.status !== "read" && !isSender) {
+        const user = users.get(clcId);
+        users.set(clcId, {
+          ...user,
+          stat: "else if",
+          totalUnreadMessages: user.totalUnreadMessages + 1,
+        });
+      }
+    });
+
+    if (messagesStateChange.length) {
+      // -------- when user come online update all message read --------
+      await Messages.updateMany(
+        { _id: messagesStateChange },
+        {
+          $set: {
+            status: "delivered",
+          },
+        }
+      );
+    }
+    console.log(users);
     // ----------- response ----------- //
     res.status(200).json({
-      allMessagesUsers,
+      users: Array.from(users.values()),
+      onlineUsers: Array.from(onlineUsers.keys()),
     });
   } catch (error) {
-    next(error);
+    next(new ErrorHandler(error.message));
   }
 };
 module.exports = {

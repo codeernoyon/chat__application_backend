@@ -61,8 +61,8 @@ const saveUserInDatabase = async (req, res, next) => {
 };
 // ------- user image update on database ------ //
 const updateUserInfo = catchAsyncError(async (req, res, next) => {
-  const { name, email, imageUrl, description } = req.body;
-  const user = await User.findOne({ email });
+  const { _id, name, email, imageUrl, description } = req.body;
+  const user = await User.findOne({ _id });
   // if don't match user save user in database through error
   if (!user) {
     return next(new ErrorHandler("User dose't exist"));
@@ -91,11 +91,13 @@ const getAllUser = catchAsyncError(async (req, res, next) => {
       return next(new ErrorHandler("User dose't exist"));
     }
 
-    User.find({}).then(function (users) {
-      res.status(200).json({
-        allUsers: users,
+    User.find({})
+      .sort({ name: 1 })
+      .then(function (users) {
+        res.status(200).json({
+          allUsers: users,
+        });
       });
-    });
   } catch (error) {
     next(error.message);
   }
