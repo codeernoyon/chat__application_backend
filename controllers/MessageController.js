@@ -6,7 +6,7 @@ const fs = require("fs");
 
 // ---------- message save on database ------------
 const messageSaveInDataBase = async (req, res, next) => {
-  const { sender, receiver, message, fileType } = req.body;
+  const { sender, receiver, message, fileType, status } = req.body;
   try {
     // ------- found user -------
     const user = await User.findOne({ _id: sender });
@@ -26,7 +26,7 @@ const messageSaveInDataBase = async (req, res, next) => {
       message,
       sender,
       receiver,
-      status: userOnline ? "deliver" : "send",
+      status: userOnline ? "deliver" : "sent",
       fileType,
     });
 
@@ -65,12 +65,11 @@ const getMessages = async (req, res, next) => {
 
     // all unread message for when user come online
     let unReadMessages = [];
-
     // -------- get index all user for filtering unread message
     allMessages.forEach((message, index) => {
       if (
         message.status !== "read" &&
-        JSON.stringify(message.sender._id) === `"${receiver}"`
+        JSON.stringify(message.sender) === `"${receiver}"`
       ) {
         allMessages[index].status = "read";
         unReadMessages.push(message._id);
@@ -252,7 +251,6 @@ const allMessagesUser = async (req, res, next) => {
         }
       );
     }
-    console.log(users);
     // ----------- response ----------- //
     res.status(200).json({
       users: Array.from(users.values()),

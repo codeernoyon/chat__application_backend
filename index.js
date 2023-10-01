@@ -68,15 +68,78 @@ const io = new Server(server, {
 
 // ------ for get online & offline users ------
 global.onlineUsers = new Map();
+global.currentMessageActiveUser = {};
 io.on("connection", (socket) => {
   global.chatSocket = socket;
   socket.on("add_user", (userId) => {
     onlineUsers.set(userId, socket.id);
   });
+  socket.on("active_user", (cUserId) => {
+    currentMessageActiveUser = onlineUsers.get(cUserId);
+  });
+  /**
+   * its a socket event that for using for realtime send message
+   * @data it's come from fronted
+   */
   socket.on("send_message", (data) => {
-    const sendUserSocket = onlineUsers.get(data?.receiver);
-    if (sendUserSocket) {
-      socket.to(sendUserSocket).emit("message_receive", { ...data });
+    const receiveUserSocket = onlineUsers.get(data?.receiver);
+    if (receiveUserSocket) {
+      socket.to(receiveUserSocket).emit("message_receive", { ...data });
+    }
+  });
+  /**
+   * its a socket event that for using voice call
+   * @data it's come from fronted
+   */
+  socket.on("outgoing_voice_call", (data) => {
+    const receiveUserSocket = onlineUsers.get(data?.receiver);
+    if (receiveUserSocket) {
+      socket.to(receiveUserSocket).emit("incoming_voice_call", {
+        sender: { ...data.sender },
+        roomId: data.roomId,
+        callType: data.callType,
+      });
+    }
+  });
+  /**
+   * its a socket event that for using video call
+   * @data it's come from fronted
+   */
+  socket.on("outgoing_video_call", (data) => {
+    const receiveUserSocket = onlineUsers.get(data?.receiver);
+    if (receiveUserSocket) {
+      socket.to(receiveUserSocket).emit("incoming_video_call", {
+        sender: { ...data.sender },
+        roomId: data.roomId,
+        callType: data.callType,
+      });
+    }
+  });
+  /**
+   * its a socket event that for using reject voice call
+   */
+  socket.on("reject_voice_call", (data) => {
+    const senderUserSocket = onlineUsers.get(data?.sender);
+    if (senderUserSocket) {
+      socket.to(senderUserSocket).emit("voice_call_rejected");
+    }
+  });
+  /**
+   * its a socket event that for using reject video call
+   */
+  socket.on("reject_video_call", (data) => {
+    const senderUserSocket = onlineUsers.get(data?.sender);
+    if (senderUserSocket) {
+      socket.to(senderUserSocket).emit("video_call_rejected");
+    }
+  });
+  /**
+   * its a socket event that for using accept call
+   */
+  socket.on("accept_incoming_call", ({ id }) => {
+    const senderUserSocket = onlineUsers.get(id);
+    if (senderUserSocket) {
+      socket.to(senderUserSocket).emit("accept_call");
     }
   });
 });
