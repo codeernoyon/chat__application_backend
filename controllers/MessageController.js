@@ -3,6 +3,7 @@ const Messages = require("../models/MessageSchema");
 const User = require("../models/userSchema");
 const ErrorHandler = require("../utils/erroeHandler");
 const fs = require("fs");
+const { log } = require("console");
 
 // ---------- message save on database ------------
 const messageSaveInDataBase = async (req, res, next) => {
@@ -76,6 +77,7 @@ const getMessages = async (req, res, next) => {
       }
     });
     // -------- when user come online update all message read --------
+    // check user online & offline
     await Messages.updateMany(
       { _id: unReadMessages },
       {
@@ -122,7 +124,7 @@ const audioMessage = async (req, res, next) => {
       message: fileName,
       sender,
       receiver,
-      status: userOnline ? "deliver" : "send",
+      status: userOnline ? "deliver" : "sent",
       fileType: "audio",
     });
 
@@ -217,14 +219,12 @@ const allMessagesUser = async (req, res, next) => {
         if (isSender) {
           user = {
             ...user,
-            stat: "true",
             user: { ...filterUser(mes.receiver) },
             totalUnreadMessages: 0,
           };
         } else {
           user = {
             ...user,
-            stat: "else",
             user: { ...filterUser(mes.sender) },
             totalUnreadMessages: mes.status !== "read" ? 1 : 0,
           };
@@ -234,23 +234,25 @@ const allMessagesUser = async (req, res, next) => {
         const user = users.get(clcId);
         users.set(clcId, {
           ...user,
-          stat: "else if",
           totalUnreadMessages: user.totalUnreadMessages + 1,
         });
       }
     });
 
-    if (messagesStateChange.length) {
-      // -------- when user come online update all message read --------
-      await Messages.updateMany(
-        { _id: messagesStateChange },
-        {
-          $set: {
-            status: "delivered",
-          },
-        }
-      );
-    }
+    // const userOnline = onlineUsers.get(receiver);
+    // if (userOnline) {
+    //   if (messagesStateChange.length) {
+    //     // -------- when user come online update all message read --------
+    //     await Messages.updateMany(
+    //       { _id: messagesStateChange },
+    //       {
+    //         $set: {
+    //           status: "deliver",
+    //         },
+    //       }
+    //     );
+    //   }
+    // }
     // ----------- response ----------- //
     res.status(200).json({
       users: Array.from(users.values()),

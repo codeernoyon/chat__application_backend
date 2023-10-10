@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const ErrorHandler = require("./utils/erroeHandler");
 const cors = require("cors");
-const { saveUserInDatabase } = require("./controllers/AuthController");
 const { AuthRoute } = require("./routes/AuthRoutes");
 const cookieParser = require("cookie-parser");
 const { MessageRoute } = require("./routes/MessageRoutes");
@@ -57,7 +56,7 @@ const server = app.listen(process.env.SERVER_PORT, () =>
 );
 
 // ------====== Error Handle -----======
-// app.use(ErrorHandler);
+app.use(ErrorHandler);
 
 // connect with socket.io
 const io = new Server(server, {
@@ -92,12 +91,13 @@ io.on("connection", (socket) => {
    * @data it's come from fronted
    */
   socket.on("outgoing_voice_call", (data) => {
+    const { sender, roomId, callType } = data;
     const receiveUserSocket = onlineUsers.get(data?.receiver);
     if (receiveUserSocket) {
       socket.to(receiveUserSocket).emit("incoming_voice_call", {
-        sender: { ...data.sender },
-        roomId: data.roomId,
-        callType: data.callType,
+        sender: { ...sender },
+        roomId,
+        callType,
       });
     }
   });
@@ -112,6 +112,7 @@ io.on("connection", (socket) => {
         sender: { ...data.sender },
         roomId: data.roomId,
         callType: data.callType,
+        offer: data.offer,
       });
     }
   });
@@ -119,7 +120,7 @@ io.on("connection", (socket) => {
    * its a socket event that for using reject voice call
    */
   socket.on("reject_voice_call", (data) => {
-    const senderUserSocket = onlineUsers.get(data?.sender);
+    const senderUserSocket = onlineUsers.get(data?.id);
     if (senderUserSocket) {
       socket.to(senderUserSocket).emit("voice_call_rejected");
     }
@@ -128,7 +129,7 @@ io.on("connection", (socket) => {
    * its a socket event that for using reject video call
    */
   socket.on("reject_video_call", (data) => {
-    const senderUserSocket = onlineUsers.get(data?.sender);
+    const senderUserSocket = onlineUsers.get(data?.id);
     if (senderUserSocket) {
       socket.to(senderUserSocket).emit("video_call_rejected");
     }
@@ -136,10 +137,10 @@ io.on("connection", (socket) => {
   /**
    * its a socket event that for using accept call
    */
-  socket.on("accept_incoming_call", ({ id }) => {
+  socket.on("accept_incoming_call", ({ id, answer }) => {
     const senderUserSocket = onlineUsers.get(id);
     if (senderUserSocket) {
-      socket.to(senderUserSocket).emit("accept_call");
+      socket.to(senderUserSocket).emit("accept_call", { answer });
     }
   });
 });

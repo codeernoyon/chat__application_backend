@@ -10,7 +10,6 @@ const saveUserInDatabase = async (req, res, next) => {
   try {
     // find user from database
     const user = await User.findOne({ email });
-
     // if user already save on database return from hare
     if (user) {
       // create a token for user
@@ -32,29 +31,29 @@ const saveUserInDatabase = async (req, res, next) => {
           token: userToken,
           user,
         });
-    }
-
-    // create a new user in database
-    const newUser = new User({
-      name,
-      email,
-      imageUrl,
-    });
-    //  save user in database
-    await newUser.save();
-    // create a token for user
-    const userToken = token(newUser);
-
-    res
-      .cookie("userToken", userToken, {
-        httpOnly: true,
-      })
-      .status(200)
-      .json({
-        message: "User Create Successful",
-        token: userToken,
-        user: newUser?._doc,
+    } else {
+      // create a new user in database
+      const newUser = new User({
+        name,
+        email,
+        imageUrl,
       });
+      //  save user in database
+      await newUser.save();
+      // create a token for user
+      const userToken = token(newUser);
+
+      res
+        .cookie("userToken", userToken, {
+          httpOnly: true,
+        })
+        .status(200)
+        .json({
+          message: "User Create Successful",
+          token: userToken,
+          user: newUser?._doc,
+        });
+    }
   } catch (error) {
     next(error);
   }
