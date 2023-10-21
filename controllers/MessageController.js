@@ -262,9 +262,53 @@ const allMessagesUser = async (req, res, next) => {
     next(new ErrorHandler(error.message));
   }
 };
+
+// ---------- update all message when user come online --------
+const updateAllMessage = async (req, res, next) => {
+  const { id } = req.params;
+  // ------- found user -------
+  const user = await User.findOne({ _id: id });
+  if (!user) {
+    return next(new ErrorHandler("User dose't exist"));
+  }
+  try {
+    //  get all messages from data base using user id
+    const allMessages = await Messages.find({
+      $or: [{ sender: id }, { receiver: id }],
+    }).sort({ createdAt: -1 });
+    // all unread message for when user come online
+    let unReadMessages = [];
+    // -------- get index all user for filtering unread message
+    allMessages.forEach((message, index) => {
+      if (
+        message.status !== "read" &&
+        JSON.stringify(message.receiver) === `"${id}"`
+      ) {
+        allMessages[index].status = "deliver";
+        unReadMessages.push(message._id);
+      }
+    });
+    // -------- when user come online update all message read --------
+    await Messages.updateMany(
+      { _id: unReadMessages },
+      {
+        $set: {
+          status: "deliver",
+        },
+      }
+    );
+    // ----------- response ----------- //
+    res.status(200).json({
+      message: "update all message",
+    });
+  } catch (error) {
+    next(new ErrorHandler(error.message));
+  }
+};
 module.exports = {
   messageSaveInDataBase,
   getMessages,
   audioMessage,
   allMessagesUser,
+  updateAllMessage,
 };
