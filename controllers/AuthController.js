@@ -42,7 +42,14 @@ const saveUserInDatabase = async (req, res, next) => {
       await newUser.save();
       // create a token for user
       const userToken = token(newUser);
-
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+      res.setHeader("Access-Control-Max-Age", "1800");
+      res.setHeader("Access-Control-Allow-Headers", "content-type");
+      res.setHeader(
+        "Access-Control-Allow-Methods",
+        "PUT, POST, GET, DELETE, PATCH, OPTIONS"
+      );
       res
         .cookie("userToken", userToken, {
           httpOnly: true,
@@ -72,6 +79,14 @@ const updateUserInfo = async (req, res, next) => {
     runValidator: true,
     useUpdateAndModify: true,
   });
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Max-Age", "1800");
+  res.setHeader("Access-Control-Allow-Headers", "content-type");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "PUT, POST, GET, DELETE, PATCH, OPTIONS"
+  );
   res.status(200).json({
     updateUser,
     message: "User information update successfully",
