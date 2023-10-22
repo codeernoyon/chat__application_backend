@@ -78,7 +78,8 @@ app.use(ErrorHandler);
 // connect with socket.io
 const io = new Server(server, {
   cors: {
-    origin: "https://chat-application-fronted.vercel.app",
+    origin:
+      "https://chat-application-fronted.vercel.app/, http://localhost:3000/",
   },
 });
 
