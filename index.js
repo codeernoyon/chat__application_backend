@@ -59,6 +59,11 @@ app.use((req, res, next) => {
 });
 
 // -------- Routing ----------- //
+app.use("/", (req, res) => {
+  res.status(200).json({
+    message: "Welcome",
+  });
+});
 app.use("/api/v1", AuthRoute);
 app.use("/api/v1", MessageRoute);
 
