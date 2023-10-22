@@ -9,12 +9,6 @@ const cookieParser = require("cookie-parser");
 const { MessageRoute } = require("./routes/MessageRoutes");
 const { Server } = require("socket.io");
 
-// -----====== cors options ====----- /
-const corsOptions = {
-  origin: "http://localhost:3000", //or whatever port your frontend is using
-  credentials: true,
-  optionSuccessStatus: 200,
-};
 // -------- app create for use application -------- //
 const app = express();
 dotenv.config();
@@ -33,7 +27,13 @@ mongoose
   });
 
 // ------ app use for third party library --- //
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+    optionSuccessStatus: 200,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
