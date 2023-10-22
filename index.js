@@ -78,7 +78,7 @@ const server = app.listen(process.env.SERVER_PORT, () =>
 );
 
 // ------====== Error Handle -----======
-app.use(ErrorHandler);
+// app.use(ErrorHandler);
 
 // connect with socket.io
 const io = new Server(server, {
