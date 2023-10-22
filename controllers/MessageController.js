@@ -112,7 +112,8 @@ const audioMessage = async (req, res, next) => {
 
     // file ready for save to folder
     const date = Date.now();
-    let fileName = "Uploads/recording/" + date + req.file.originalname;
+    // let fileName = "Uploads/recording/" + date + req.file.originalname;
+    let fileName = date;
 
     // fs.renameSync(req.file.path, fileName);
 

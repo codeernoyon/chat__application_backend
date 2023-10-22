@@ -59,7 +59,7 @@ const saveUserInDatabase = async (req, res, next) => {
   }
 };
 // ------- user image update on database ------ //
-const updateUserInfo = catchAsyncError(async (req, res, next) => {
+const updateUserInfo = async (req, res, next) => {
   const { _id, name, email, imageUrl, description } = req.body;
   const user = await User.findOne({ _id });
   // if don't match user save user in database through error
@@ -76,10 +76,10 @@ const updateUserInfo = catchAsyncError(async (req, res, next) => {
     updateUser,
     message: "User information update successfully",
   });
-});
+};
 
 // get all user from data base
-const getAllUser = catchAsyncError(async (req, res, next) => {
+const getAllUser = async (req, res, next) => {
   const { email } = req.body;
   try {
     // find user from database
@@ -100,6 +100,6 @@ const getAllUser = catchAsyncError(async (req, res, next) => {
   } catch (error) {
     next(error.message);
   }
-});
+};
 
 module.exports = { saveUserInDatabase, updateUserInfo, getAllUser };
