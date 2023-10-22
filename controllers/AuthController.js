@@ -64,7 +64,7 @@ const updateUserInfo = async (req, res, next) => {
   const user = await User.findOne({ _id });
   // if don't match user save user in database through error
   if (!user) {
-    return next(new ErrorHandler("User dose't exist"));
+    return next("User dose't exist");
   }
   // create update user information filter with email
   const updateUser = await User.findOneAndUpdate({ email: email }, req.body, {
@@ -87,7 +87,7 @@ const getAllUser = async (req, res, next) => {
 
     // if don't match user save user in database through error
     if (!user) {
-      return next(new ErrorHandler("User dose't exist"));
+      return next("User dose't exist");
     }
 
     User.find({})

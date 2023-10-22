@@ -12,11 +12,11 @@ const messageSaveInDataBase = async (req, res, next) => {
     // ------- found user -------
     const user = await User.findOne({ _id: sender });
     if (!user) {
-      return next(new ErrorHandler("User dose't exist"));
+      return next("User dose't exist");
     }
     // ----- check valid message ------
     if (!user && !sender && !receiver && !message && !fileType) {
-      return next(new ErrorHandler("Can't send the message"));
+      return next("Can't send the message");
     }
 
     // check user online & offline
@@ -39,7 +39,7 @@ const messageSaveInDataBase = async (req, res, next) => {
       data: newMessage._doc,
     });
   } catch (error) {
-    next(new ErrorHandler(error));
+    next(error);
   }
 };
 
@@ -50,10 +50,10 @@ const getMessages = async (req, res, next) => {
     // ------- found user -------
     const user = await User.findOne({ _id: sender });
     if (!user) {
-      return next(new ErrorHandler("User dose't exist"));
+      return next("User dose't exist");
     }
     if (receiver === undefined || receiver === null)
-      return next(new ErrorHandler("receiver disvalue"));
+      return next("receiver disvalue");
 
     // ------ find messages from database ----------
 
@@ -91,7 +91,7 @@ const getMessages = async (req, res, next) => {
       allMessages,
     });
   } catch (error) {
-    next(new ErrorHandler(error.message));
+    next(error.message);
   }
 };
 // ---------- audio message save on local folder ------------
@@ -101,14 +101,14 @@ const audioMessage = async (req, res, next) => {
     // ------- found user -------
     const user = await User.findOne({ _id: sender });
     if (!user) {
-      return next(new ErrorHandler("User dose't exist"));
+      return next("User dose't exist");
     }
     // ----- check valid message ------
     if (!user && !sender && !receiver) {
-      return next(new ErrorHandler("Can't send the message"));
+      return next("Can't send the message");
     }
     // ----- check valid file message ------
-    if (!req.file) return next(new ErrorHandler("file dose't found"));
+    if (!req.file) return next("file dose't found");
 
     // file ready for save to folder
     const date = Date.now();
@@ -137,7 +137,7 @@ const audioMessage = async (req, res, next) => {
       data: newMessage._doc,
     });
   } catch (error) {
-    next(new ErrorHandler(error));
+    next(error);
   }
 };
 
@@ -147,7 +147,7 @@ const allMessagesUser = async (req, res, next) => {
   // ------- found user -------
   const user = await User.findOne({ _id: id });
   if (!user) {
-    return next(new ErrorHandler("User dose't exist"));
+    return next("User dose't exist");
   }
   try {
     //  get all messages from data base using user id
@@ -260,7 +260,7 @@ const allMessagesUser = async (req, res, next) => {
       onlineUsers: Array.from(onlineUsers.keys()),
     });
   } catch (error) {
-    next(new ErrorHandler(error.message));
+    next(error.message);
   }
 };
 
@@ -270,7 +270,7 @@ const updateAllMessage = async (req, res, next) => {
   // ------- found user -------
   const user = await User.findOne({ _id: id });
   if (!user) {
-    return next(new ErrorHandler("User dose't exist"));
+    return next("User dose't exist");
   }
   try {
     //  get all messages from data base using user id
