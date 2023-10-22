@@ -11,20 +11,9 @@ const { Server } = require("socket.io");
 
 // -----====== cors options ====----- /
 const corsOptions = {
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"],
-  allowedHeaders: [
-    "Content-Type",
-    "Origin",
-    "X-Requested-With",
-    "Accept",
-    "x-client-key",
-    "x-client-token",
-    "x-client-secret",
-    "Authorization",
-  ],
+  origin: "http://localhost:3000", //or whatever port your frontend is using
   credentials: true,
-  // Access-Control-Allow-Origin:true,
+  optionSuccessStatus: 200,
 };
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
