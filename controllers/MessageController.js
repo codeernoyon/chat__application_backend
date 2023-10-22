@@ -114,7 +114,7 @@ const audioMessage = async (req, res, next) => {
     const date = Date.now();
     let fileName = "Uploads/recording/" + date + req.file.originalname;
 
-    fs.renameSync(req.file.path, fileName);
+    // fs.renameSync(req.file.path, fileName);
 
     // check user online & offline
     const userOnline = onlineUsers.get(receiver);
