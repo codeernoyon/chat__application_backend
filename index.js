@@ -59,7 +59,7 @@ app.use((req, res, next) => {
 });
 
 // -------- Routing ----------- //
-app.use("/", (req, res) => {
+app.get("/", (req, res) => {
   res.status(200).json({
     message: "Welcome",
   });
