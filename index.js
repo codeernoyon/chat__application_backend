@@ -51,6 +51,13 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use("/Uploads/recording", express.static("Uploads/recording"));
 
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
+
 // -------- Routing ----------- //
 app.use("/api/v1", AuthRoute);
 app.use("/api/v1", MessageRoute);
