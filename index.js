@@ -33,9 +33,9 @@ mongoose
   });
 
 // ------ app use for third party library --- //
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
 app.use(cookieParser());
 // app.use("/Uploads/recording", express.static("Uploads/recording"));
 
@@ -64,8 +64,7 @@ const server = app.listen(process.env.SERVER_PORT, () =>
 // connect with socket.io
 const io = new Server(server, {
   cors: {
-    origin:
-      "https://chat-application-fronted.vercel.app/, http://localhost:3000/",
+    origin: "*",
   },
 });
 
