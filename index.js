@@ -11,10 +11,10 @@ const { Server } = require("socket.io");
 
 // -----====== cors options ====----- /
 const corsOptions = {
-  origin: "*",
+  origin: "http://localhost:3000",
   credentials: true,
   optionSuccessStatus: 200,
-  // access-control-allow-credentials:true,
+  // Access-Control-Allow-Origin:true,
 };
 
 // -------- app create for use application -------- //
