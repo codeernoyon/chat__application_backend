@@ -26,7 +26,12 @@ const corsOptions = {
   credentials: true,
   // Access-Control-Allow-Origin:true,
 };
-
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
 // -------- app create for use application -------- //
 const app = express();
 dotenv.config();
@@ -50,13 +55,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.use(cookieParser());
 // app.use("/Uploads/recording", express.static("Uploads/recording"));
-
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  next();
-});
 
 // -------- Routing ----------- //
 app.get("/", (req, res) => {
