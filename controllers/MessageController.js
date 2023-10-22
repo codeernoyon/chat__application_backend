@@ -303,7 +303,7 @@ const updateAllMessage = async (req, res, next) => {
       message: "update all message",
     });
   } catch (error) {
-    next(new ErrorHandler(error.message));
+    next(error.message);
   }
 };
 module.exports = {
