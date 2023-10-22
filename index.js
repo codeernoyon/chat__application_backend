@@ -11,9 +11,19 @@ const { Server } = require("socket.io");
 
 // -----====== cors options ====----- /
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Origin",
+    "X-Requested-With",
+    "Accept",
+    "x-client-key",
+    "x-client-token",
+    "x-client-secret",
+    "Authorization",
+  ],
   credentials: true,
-  optionSuccessStatus: 200,
   // Access-Control-Allow-Origin:true,
 };
 
