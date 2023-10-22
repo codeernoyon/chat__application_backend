@@ -2,7 +2,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const ErrorHandler = require("./utils/erroeHandler");
+// const ErrorHandler = require("./utils/erroeHandler");
 const cors = require("cors");
 const { AuthRoute } = require("./routes/AuthRoutes");
 const cookieParser = require("cookie-parser");
@@ -35,7 +35,7 @@ mongoose
 // ------ app use for third party library --- //
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(cookieParser());
 // app.use("/Uploads/recording", express.static("Uploads/recording"));
 
