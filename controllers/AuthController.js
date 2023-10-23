@@ -17,6 +17,8 @@ const saveUserInDatabase = async (req, res, next) => {
 
       // send a response with user data and cookie
       res
+        .setHeader("Access-Control-Allow-Origin", "*")
+        .setHeader("Access-Control-Allow-Credentials", "true")
         .cookie("userToken", userToken, {
           httpOnly: true,
           // secure: true,
@@ -40,6 +42,8 @@ const saveUserInDatabase = async (req, res, next) => {
       const userToken = token(newUser);
 
       res
+        .setHeader("Access-Control-Allow-Origin", "*")
+        .setHeader("Access-Control-Allow-Credentials", "true")
         .cookie("userToken", userToken, {
           httpOnly: true,
         })
