@@ -13,6 +13,15 @@ const { Server } = require("socket.io");
 const app = express();
 dotenv.config();
 
+// ------ app use for third party library --- //
+app.use(
+  cors({
+    origin:
+      "https://chat-application-fronted.vercel.app/, http://localhost:3000/",
+    credentials: true,
+    optionSuccessStatus: 200,
+  })
+);
 // -------- Database connect ------- //
 mongoose
   .connect(process.env.DATABASE_URL, {
@@ -25,16 +34,8 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
-
 // ------ app use for third party library --- //
-app.use(
-  cors({
-    origin:
-      "https://chat-application-fronted.vercel.app/, http://localhost:3000/",
-    credentials: true,
-    optionSuccessStatus: 200,
-  })
-);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
