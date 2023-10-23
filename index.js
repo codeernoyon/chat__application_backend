@@ -29,7 +29,8 @@ mongoose
 // ------ app use for third party library --- //
 app.use(
   cors({
-    origin: "http://localhost:3000/",
+    origin:
+      "https://chat-application-fronted.vercel.app/, http://localhost:3000/",
     credentials: true,
     optionSuccessStatus: 200,
   })
@@ -64,7 +65,8 @@ const server = app.listen(process.env.SERVER_PORT, () =>
 // connect with socket.io
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin:
+      "https://chat-application-fronted.vercel.app/,  http://localhost:3000/",
   },
 });
 
