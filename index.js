@@ -29,7 +29,7 @@ mongoose
 // ------ app use for third party library --- //
 app.use(
   cors({
-    origin: "*",
+    origin: "http://localhost:3000/",
     credentials: true,
     optionSuccessStatus: 200,
   })
