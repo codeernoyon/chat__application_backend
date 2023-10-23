@@ -17,10 +17,6 @@ const saveUserInDatabase = async (req, res, next) => {
 
       // send a response with user data and cookie
       res
-        .header(
-          "Access-Control-Allow-Headers",
-          "x-access-token, Origin, Content-Type, Accept"
-        )
         .cookie("userToken", userToken, {
           httpOnly: true,
           // secure: true,
